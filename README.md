@@ -1,341 +1,292 @@
 # CV Processing API
 
-Une API FastAPI robuste pour traiter et extraire les informations des CVs PDF en utilisant des modèles d'IA open source.
+Une API FastAPI robuste pour l'extraction et le traitement automatique d'informations depuis des CVs PDF.
 
 ## 🚀 Fonctionnalités
 
-- **Upload de CVs PDF** : Interface simple pour uploader des fichiers
-- **Extraction intelligente** : Utilisation de multiples modèles d'IA pour l'extraction
-- **Traitement OCR** : Support des PDFs scannés avec Tesseract
-- **Extraction structurée** : Informations organisées en JSON structuré
-- **API RESTful** : Endpoints clairs et documentés
-- **Logging avancé** : Traçabilité complète des opérations
-- **Gestion des fichiers** : Sauvegarde et organisation automatique
+- **Upload de CVs PDF** via interface REST
+- **Extraction de texte** avec PyPDF2
+- **Extraction d'informations structurées** :
+  - Informations personnelles (nom, etc.)
+  - Coordonnées (email, téléphone, LinkedIn, GitHub)
+  - Adresse
+  - Résumé professionnel
+  - Expérience professionnelle
+  - Formation/Éducation
+  - Compétences techniques
+  - Langues
+  - Certifications
+  - Projets
+  - Hobbies
+- **Sauvegarde des résultats** en JSON
+- **API RESTful complète** avec documentation interactive
+- **Gestion d'erreurs robuste**
+- **Logging détaillé**
 
-## 🏗️ Architecture
+## 📋 Prérequis
 
-```
-cv-processing-api/
-├── main.py                           # Point d'entrée FastAPI
-├── run-simple.py                     # Script de démarrage simplifié
-├── install-final.py                  # Script d'installation automatique
-├── requirements-minimal-working.txt  # Dépendances Python minimales
-├── test-improved-extraction.py       # Test de l'extracteur amélioré
-├── services/                         # Services métier
-│   ├── ai_extractor_improved.py     # Extracteur d'informations amélioré
-│   └── cv_processor_simple.py       # Traitement des PDFs simplifié
-├── utils/                            # Utilitaires
-│   ├── file_handler.py              # Gestion des fichiers
-│   └── logger.py                    # Configuration du logging
-├── uploads/                          # CVs uploadés (créé automatiquement)
-├── outputs/                          # Fichiers JSON générés (créé automatiquement)
-└── logs/                             # Fichiers de logs (créé automatiquement)
-```
+- Python 3.8+
+- pip
+- Un fichier PDF de CV pour tester
 
 ## 🛠️ Installation
 
-### Prérequis
+### Installation automatique (Recommandée)
 
-- Python 3.8+
-- Tesseract OCR (pour l'extraction de texte des PDFs scannés)
-
-### Installation de Tesseract
-
-#### Windows
 ```bash
-# Télécharger et installer depuis : https://github.com/UB-Mannheim/tesseract/wiki
-# Ajouter Tesseract au PATH système
-```
-
-#### macOS
-```bash
-brew install tesseract
-brew install tesseract-lang  # Pour les langues supplémentaires
-```
-
-#### Ubuntu/Debian
-```bash
-sudo apt update
-sudo apt install tesseract-ocr
-sudo apt install tesseract-ocr-fra tesseract-ocr-eng  # Langues FR/EN
-```
-
-### Installation Python
-
-1. **Cloner le projet**
-```bash
-git clone <repository-url>
-cd cv-processing-api
-```
-
-2. **Créer un environnement virtuel**
-```bash
-python -m venv venv
-source venv/bin/activate  # Linux/macOS
-# ou
-venv\Scripts\activate     # Windows
-```
-
-3. **Installer les dépendances**
-```bash
-# Installation automatique (recommandée)
+# 1. Cloner ou télécharger le projet
+# 2. Exécuter le script d'installation
 python install-final.py
+```
 
-# Ou installation manuelle
+### Installation manuelle
+
+```bash
+# 1. Créer un environnement virtuel
+python -m venv venv
+
+# 2. Activer l'environnement virtuel
+# Windows:
+venv\Scripts\activate
+# Linux/macOS:
+source venv/bin/activate
+
+# 3. Installer les dépendances
 pip install -r requirements-minimal-working.txt
 ```
 
 ## 🚀 Démarrage
 
-### Démarrage simple (recommandé)
+### Démarrage automatique
+
 ```bash
+# Activer l'environnement virtuel
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Linux/macOS
+
+# Démarrer l'API
 python run-simple.py
 ```
 
-### Démarrage avec uvicorn
+### Démarrage manuel
+
 ```bash
+# Activer l'environnement virtuel
+venv\Scripts\activate  # Windows
+# source venv/bin/activate  # Linux/macOS
+
+# Démarrer avec uvicorn
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-### Variables d'environnement (optionnel)
+## 📖 Utilisation
+
+### 1. Accès à l'API
+
+- **Interface Swagger** : http://localhost:8000/docs
+- **Page d'accueil** : http://localhost:8000/
+- **Test de santé** : http://localhost:8000/health
+
+### 2. Upload et traitement d'un CV
+
+#### Via l'interface Swagger :
+1. Ouvrir http://localhost:8000/docs
+2. Cliquer sur `/upload-cv`
+3. Cliquer sur "Try it out"
+4. Sélectionner un fichier PDF
+5. Cliquer sur "Execute"
+
+#### Via curl :
 ```bash
-export DEBUG=True
-export PORT=8000
-export LOG_LEVEL=DEBUG
-export SECRET_KEY="your-secret-key"
-```
-
-## 📚 API Endpoints
-
-### Endpoints principaux
-
-| Méthode | Endpoint | Description |
-|---------|----------|-------------|
-| `GET` | `/` | Page d'accueil de l'API |
-| `GET` | `/health` | Vérification de l'état de l'API |
-| `POST` | `/upload-cv` | Upload d'un fichier CV PDF |
-| `POST` | `/process-cv` | Traitement d'un CV uploadé |
-| `POST` | `/process-cv-from-path` | Traitement d'un CV depuis un chemin |
-| `GET` | `/download-result/{filename}` | Téléchargement d'un résultat |
-| `GET` | `/list-results` | Liste des résultats disponibles |
-
-### Documentation interactive
-
-Une fois l'API démarrée, accédez à :
-- **Swagger UI** : `http://localhost:8000/docs`
-- **ReDoc** : `http://localhost:8000/redoc`
-
-## 🔧 Utilisation
-
-### 1. Upload et traitement d'un CV
-
-```bash
-# Upload du fichier
+# Upload du CV
 curl -X POST "http://localhost:8000/upload-cv" \
   -H "accept: application/json" \
   -H "Content-Type: multipart/form-data" \
-  -F "file=@mon_cv.pdf"
+  -F "file=@votre_cv.pdf"
 
-# Traitement du CV
+# Traitement du CV uploadé
 curl -X POST "http://localhost:8000/process-cv" \
   -H "accept: application/json" \
   -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "file_path=uploads/cv_20231201_12345678_abc12345.pdf"
+  -d "file_path=uploads/cv_20250101_120000_votre_cv.pdf"
 ```
 
-### 2. Traitement depuis un chemin
+### 3. Test de l'extraction
 
 ```bash
-curl -X POST "http://localhost:8000/process-cv-from-path" \
-  -H "accept: application/json" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -d "pdf_path=/chemin/vers/mon_cv.pdf"
+# Tester l'extraction avec un CV existant
+python test-improved-extraction.py
 ```
 
-### 3. Récupération des résultats
+## 📁 Structure du projet
 
-```bash
-# Liste des résultats
-curl -X GET "http://localhost:8000/list-results"
-
-# Téléchargement d'un résultat
-curl -X GET "http://localhost:8000/download-result/cv_extracted_20231201_123456.json"
+```
+cv-processing-api/
+├── main.py                      # Application FastAPI principale
+├── run-simple.py                # Script de démarrage simplifié
+├── install-final.py             # Script d'installation automatique
+├── test-improved-extraction.py  # Script de test de l'extraction
+├── requirements-minimal-working.txt  # Dépendances Python
+├── README.md                    # Documentation
+├── .gitignore                   # Fichiers ignorés par Git
+├── services/                    # Services métier
+│   ├── __init__.py
+│   ├── cv_processor_simple.py   # Traitement des PDFs
+│   └── ai_extractor_improved.py # Extraction d'informations
+├── utils/                       # Utilitaires
+│   ├── __init__.py
+│   ├── file_handler.py          # Gestion des fichiers
+│   └── logger.py                # Configuration du logging
+├── uploads/                     # CVs uploadés
+├── outputs/                     # Résultats JSON
+└── logs/                        # Fichiers de logs
 ```
 
-## 🤖 Modèles d'IA utilisés
+## 🔧 Endpoints API
 
-### Extraction de texte
-- **pdfplumber** : Extraction de texte des PDFs natifs
-- **PyPDF2** : Extraction de texte (fallback)
-- **Tesseract OCR** : Extraction de texte des PDFs scannés
+| Endpoint | Méthode | Description |
+|----------|---------|-------------|
+| `/` | GET | Page d'accueil avec liste des endpoints |
+| `/health` | GET | Vérification de l'état de l'API |
+| `/upload-cv` | POST | Upload d'un fichier CV PDF |
+| `/process-cv` | POST | Traitement d'un CV uploadé |
+| `/process-cv-from-path` | POST | Traitement d'un CV depuis un chemin |
+| `/download-result/{filename}` | GET | Téléchargement d'un résultat |
+| `/list-results` | GET | Liste des résultats disponibles |
+| `/docs` | GET | Documentation interactive Swagger |
 
-### Traitement du langage naturel
-- **spaCy** : Analyse linguistique et extraction d'entités
-- **NLTK** : Traitement de texte avancé
-- **Transformers** : Modèles BERT multilingues
+## 🧪 Test de l'extraction
 
-### Patterns d'extraction
-- **Regex avancés** : Extraction d'emails, téléphones, liens
-- **Mots-clés techniques** : Détection automatique des compétences
-- **Analyse structurelle** : Identification des sections de CV
+Pour tester l'extraction d'informations :
 
-## 📊 Format de sortie JSON
+1. **Placer un CV PDF** dans le dossier `uploads/`
+2. **Exécuter le test** :
+   ```bash
+   python test-improved-extraction.py
+   ```
+3. **Vérifier les résultats** dans le dossier `outputs/`
+
+## 🔍 Exemple de sortie JSON
 
 ```json
 {
   "personal_info": {
-    "name": "Jean Dupont",
-    "current_company": "TechCorp"
+    "full_name": "Jean Claude Itiel BOUMBISAI"
   },
   "contact_info": {
-    "email": "jean.dupont@email.com",
-    "phone": "0123456789",
-    "linkedin": "linkedin.com/in/jeandupont"
+    "email": "boumbisaiitiel@gmail.com",
+    "phone": "+237 650 973 231",
+    "linkedin": "https://www.linkedin.com/in/jean-claude-itiel-boumbisaï",
+    "github": "https://github.com/Ryzen237"
   },
-  "professional_summary": "Développeur full-stack avec 5 ans d'expérience...",
+  "address": "Yassa, Douala, Littoral",
+  "professional_summary": "Étudiant en 4ème année à l'ENSPD...",
   "work_experience": [
     {
-      "title": "Développeur Senior",
-      "company": "TechCorp",
-      "period": "2020-2023",
-      "description": ["Gestion d'équipe de 5 développeurs..."]
+      "title": "Intern COM.INFO",
+      "company": "Douala",
+      "period": "August - September 2022",
+      "description": ["Manage tickets and analyze faults", "..."]
     }
   ],
   "education": [
     {
-      "degree": "Master en Informatique",
-      "institution": "Université de Paris",
-      "year": "2018"
+      "degree": "Software Engineering",
+      "institution": "National Higher Polytechnic School of Douala",
+      "year": "2021-2026",
+      "description": ["Computer Science and Telecommunications"]
     }
   ],
-  "skills": ["Python", "React", "Docker", "AWS"],
-  "languages": ["Français", "Anglais"],
-  "certifications": ["AWS Certified Developer"],
+  "skills": ["Python", "Java", "JavaScript", "React", "Laravel", "Django"],
+  "languages": ["French", "English"],
   "projects": [
     {
-      "name": "E-commerce Platform",
-      "description": ["Développement d'une plateforme complète..."]
+      "name": "LINA Project",
+      "description": "Solution for Camtel Bluetech Challenge...",
+      "technologies": []
     }
   ],
+  "hobbies": ["Sing", "piano", "Music", "football", "reading"],
   "extraction_metadata": {
-    "text_length": 2500,
-    "extraction_method": "ai_enhanced",
-    "confidence_score": 0.85
+    "text_length": 1875,
+    "extraction_method": "improved_regex_based",
+    "confidence_score": 0.85,
+    "note": "Extraction améliorée avec patterns optimisés"
   }
 }
 ```
 
-## 🔍 Configuration
+## 🐛 Résolution de problèmes
 
-### Modifier la configuration
+### Problème : "No module named 'PyPDF2'"
+**Solution** : Activer l'environnement virtuel
+```bash
+venv\Scripts\activate  # Windows
+source venv/bin/activate  # Linux/macOS
+```
 
-Éditez `config.py` pour personnaliser :
-- Ports et hôtes
-- Dossiers d'upload/sortie
-- Modèles IA utilisés
-- Patterns d'extraction
-- Seuils de confiance
+### Problème : "Port 8000 already in use"
+**Solution** : Changer le port ou arrêter le processus
+```bash
+# Changer le port dans run-simple.py
+PORT = 8001
+```
+
+### Problème : "Fichier PDF non trouvé"
+**Solution** : Vérifier que le fichier existe dans `uploads/`
+
+### Problème : "Aucun texte extrait"
+**Solution** : Le PDF peut être protégé ou en image. Utiliser un PDF avec du texte sélectionnable.
+
+## 🔧 Configuration avancée
 
 ### Variables d'environnement
 
-```bash
-# Configuration du serveur
+Créer un fichier `.env` :
+```env
 HOST=0.0.0.0
 PORT=8000
-DEBUG=False
-
-# Configuration des modèles
-LOG_LEVEL=INFO
-SECRET_KEY=your-secret-key
-
-# Configuration CORS
-CORS_ORIGINS=http://localhost:3000,https://monapp.com
+DEBUG=true
+LOG_LEVEL=info
+MAX_FILE_SIZE=10485760  # 10MB
 ```
-
-## 🧪 Tests
-
-### Test manuel avec curl
-
-```bash
-# Test de santé
-curl http://localhost:8000/health
-
-# Test d'upload (remplacez par un vrai fichier PDF)
-curl -X POST "http://localhost:8000/upload-cv" \
-  -F "file=@test_cv.pdf"
-```
-
-### Test avec un client HTTP
-
-Utilisez **Postman**, **Insomnia** ou **Thunder Client** pour tester l'API.
-
-## 🚨 Dépannage
-
-### Erreurs communes
-
-1. **Port déjà utilisé**
-   ```bash
-   # Changer le port dans config.py ou utiliser un autre port
-   uvicorn main:app --port 8001
-   ```
-
-2. **Tesseract non trouvé**
-   ```bash
-   # Vérifier l'installation et le PATH
-   tesseract --version
-   ```
-
-3. **Modèles spaCy manquants**
-   ```bash
-   python -m spacy download fr_core_news_sm
-   python -m spacy download en_core_web_sm
-   ```
-
-4. **Permissions de dossiers**
-   ```bash
-   # Vérifier les permissions sur uploads/, outputs/, logs/
-   chmod 755 uploads/ outputs/ logs/
-   ```
 
 ### Logs
 
 Les logs sont disponibles dans :
-- **Console** : Sortie directe
-- **Fichiers** : `logs/cv_processing_YYYYMMDD.log`
+- `logs/cv_processing_YYYYMMDD.log` - Logs généraux
+- `logs/cv_processing_errors_YYYYMMDD.log` - Logs d'erreurs
 
-## 🔒 Sécurité
+## 🚀 Déploiement
 
-### En production
+### Production avec Gunicorn
 
-1. **Changer la clé secrète**
-   ```bash
-   export SECRET_KEY="votre-clé-secrète-très-longue-et-complexe"
-   ```
+```bash
+pip install gunicorn
+gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+```
 
-2. **Restreindre CORS**
-   ```bash
-   export CORS_ORIGINS="https://votre-domaine.com"
-   ```
+### Docker (optionnel)
 
-3. **Limiter la taille des fichiers**
-   - Modifier `MAX_FILE_SIZE` dans `config.py`
+```dockerfile
+FROM python:3.9-slim
+WORKDIR /app
+COPY requirements-minimal-working.txt .
+RUN pip install -r requirements-minimal-working.txt
+COPY . .
+EXPOSE 8000
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+```
 
-4. **Authentification** (à implémenter selon vos besoins)
+## 📝 Améliorations récentes
 
-## 📈 Performance
-
-### Optimisations recommandées
-
-1. **Cache des modèles IA** : Les modèles sont chargés une seule fois au démarrage
-2. **Traitement asynchrone** : Utilisation d'async/await pour les opérations I/O
-3. **Nettoyage automatique** : Suppression des anciens fichiers
-4. **Logs rotatifs** : Gestion automatique de la taille des logs
-
-### Monitoring
-
-- **Métriques** : Temps de traitement, taux de succès
-- **Logs structurés** : Traçabilité complète des opérations
-- **Gestion d'erreurs** : Capture et logging de toutes les exceptions
+### Version 1.1.0 (Corrections majeures)
+- ✅ **Extraction d'informations améliorée** : Patterns regex optimisés
+- ✅ **Nettoyage de texte intelligent** : Préservation des informations importantes
+- ✅ **Gestion d'erreurs robuste** : Validation des fichiers et gestion des exceptions
+- ✅ **Patterns téléphone améliorés** : Support des formats internationaux
+- ✅ **Test amélioré** : Affichage détaillé des résultats
+- ✅ **Validation des fichiers** : Vérification de la taille et du type
 
 ## 🤝 Contribution
 
@@ -351,13 +302,13 @@ Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ## 🆘 Support
 
-Pour toute question ou problème :
-1. Vérifiez les logs de l'application
-2. Consultez la documentation de l'API (`/docs`)
-3. Ouvrez une issue sur GitHub
-4. Contactez l'équipe de développement
+En cas de problème :
+1. Vérifier les logs dans `logs/`
+2. Tester avec `python test-improved-extraction.py`
+3. Vérifier que l'environnement virtuel est activé
+4. Consulter la documentation Swagger sur http://localhost:8000/docs
 
 ---
 
-**Développé avec ❤️ pour simplifier le traitement des CVs**
+**Développé avec ❤️ pour l'extraction automatique d'informations de CVs**
 
